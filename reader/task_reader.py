@@ -16,7 +16,7 @@ import csv
 import json
 import numpy as np
 from collections import namedtuple
-
+import codecs
 import tokenization
 from batching import pad_batch_data
 
@@ -54,18 +54,45 @@ class BaseReader(object):
         """Gets progress for training phase."""
         return self.current_example, self.current_epoch
 
+    def _read_data(self,input_file):
+        """Reads a BIO data."""
+        with codecs.open(input_file, 'r', encoding='utf-8') as f:
+            lines = []
+            words = []
+            labels = []
+            for line in f:
+                contends = line.strip()
+                tokens = contends.split(' ')
+
+                if len(tokens) == 2:
+                    words.append(tokens[0])
+                    labels.append(tokens[-1])
+                else:
+                    if len(contends) == 0 and len(words) > 0:
+                        label = []
+                        word = []
+                        for l, w in zip(labels, words):
+                            if len(l) > 0 and len(w) > 0:
+                                label.append(l)
+                                word.append(w)
+                        lines.append([' '.join(word), ' '.join(label)])
+                        words = []
+                        labels = []
+                        continue
+                if contends.startswith("-DOCSTART-"):
+                    continue
+            return lines
+
     def _read_tsv(self, input_file, quotechar=None):
         """Reads a tab separated value file."""
-        with open(input_file, "r") as f:
-            reader = csv.reader(f, delimiter="\t", quotechar=quotechar)
-            headers = next(reader)
-            Example = namedtuple('Example', headers)
+        Example = namedtuple('Example', ['text_a', 'label'])
+        examples = []
+        lines=self._read_data(input_file)
+        for line in lines:
+            example = Example(*line)
+            examples.append(example)
+        return examples
 
-            examples = []
-            for line in reader:
-                example = Example(*line)
-                examples.append(example)
-            return examples
 
     def _truncate_seq_pair(self, tokens_a, tokens_b, max_length):
         """Truncates a sequence pair in place to the maximum length."""
