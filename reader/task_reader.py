@@ -75,7 +75,7 @@ class BaseReader(object):
                             if len(l) > 0 and len(w) > 0:
                                 label.append(l)
                                 word.append(w)
-                        lines.append([' '.join(word), ' '.join(label)])
+                        lines.append([u'\x02'.join(word), u'\x02'.join(label)])
                         words = []
                         labels = []
                         continue
