@@ -1,20 +1,20 @@
 set -eux
 
 export FLAGS_sync_nccl_allreduce=1
-export CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=1
 
 python -u run_sequence_labeling.py \
                    --use_cuda true \
                    --do_train true \
                    --do_val true \
                    --do_test true \
-                   --batch_size 16 \
-                   --init_pretraining_params ${MODEL_PATH}/params \
+                   --batch_size 8 \
+                   --init_pretraining_params model_data/params \
                    --num_labels 7 \
-                   --label_map_config ${TASK_DATA_PATH}/msra_ner/label_map.json \
-                   --train_set ${TASK_DATA_PATH}/msra_ner/train.tsv \
-                   --dev_set ${TASK_DATA_PATH}/msra_ner/dev.tsv \
-                   --test_set ${TASK_DATA_PATH}/msra_ner/test.tsv \
+                   --label_map_config task_data/msra_ner/label_map.json \
+                   --train_set task_data/msra_ner/train.tsv \
+                   --dev_set task_data/msra_ner/dev.tsv \
+                   --test_set task_data/msra_ner/test.tsv \
                    --vocab_path config/vocab.txt \
                    --ernie_config_path config/ernie_config.json \
                    --checkpoints ./checkpoints \
